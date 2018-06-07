@@ -1,0 +1,9 @@
+[bits 16]
+section .text
+global _start
+extern main
+_start:mov ah,0x00
+mov al,0x03
+int 0x10
+jmp main  
+hng:jmp hng
