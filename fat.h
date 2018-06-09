@@ -1,12 +1,12 @@
 #ifndef __FAT_H
 #define __FAT_H
 struct BPB{
-	uint8_t asm[3];
+	uint8_t _asm[3];
 	uint8_t ident[8];
 	uint16_t bytes_per_sector;
 	uint8_t sectors_per_cluster;
 	uint16_t nrsect;
-	uint8_t fatnum;
+	uint8_t tblcount;
 	uint16_t ndent;
 	uint16_t tsectors;
 	uint8_t mdt;
@@ -18,7 +18,7 @@ struct BPB{
 };
 struct PartTab{
 	uint8_t boot;
-	uint8_t startnghead;
+	uint8_t startinghead;
 	uint16_t starting;//Sector = starting & 64 cylinder = starting >> 6
 	uint8_t sysid;
 	uint8_t endinghead;

@@ -1,8 +1,12 @@
 #include "lib.h"
+#include "fat.h"
 void display(int r){
 	if(r == 0){
 		_puts("FOUND\n");
 	}
+}
+void puts(const char * str){
+	_puts(str);
 }
 void main(){
 	const char *pntr = "Welcome to worm, a real mode x86 bootloader\n";
@@ -40,6 +44,31 @@ void main(){
 	}
 	if(!found){
 		panic();
+	}
+	puts("Looking for fat partitions\n");
+	for(int i = 0; i < 4;i++){
+		if(r[i] == 0){
+			uint8_t fattype = getFatType(r[i]);
+			switch(fattype){
+				case 0:
+					puts("Found fat 12\n");
+					break;
+				case 1:
+					puts("Found fat 16\n");
+					break;
+				case 2:
+					puts("Found fat 32\n");
+					break;
+				case 3:
+					puts("Found ExFat\n");
+					break;
+				case 4:
+					puts("None found on this partition\n");
+					break;
+				default:;
+					break;
+			}	
+		}	
 	}
 	while(1);
 }

@@ -26,6 +26,7 @@ int intlen(int n){
 char *tostr(int n){
 	char *str = malloc(80);
 	int indx = intlen(n)-1;
+	str[indx+1] = 0;
 	while(n > 0){
 		str[indx] = (n % 10) + '0';
 		indx--;
