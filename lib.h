@@ -15,7 +15,7 @@ struct mem{
 
 };
 struct CHS{
-	uint8_t c;
+	uint16_t c;
 	uint8_t h;
 	uint8_t s;
 };
@@ -26,5 +26,5 @@ unsigned long strlen(const char *str);
 uint8_t bios_read_chs(void *pntr,unsigned short c,unsigned short h,unsigned short s,unsigned short d);
 void *malloc(size_t size);
 void free(void *pntr);
-char *tostr(int n);
+char *tostr(unsigned int n);
 #endif

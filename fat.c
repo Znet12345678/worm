@@ -7,9 +7,9 @@ struct CHS* getPartChs(uint8_t drive,uint8_t partnum){
 	struct CHS *ret = malloc(sizeof(*ret));
 	if(pt->tsectors == 0)
 		return 0;
-	ret->c = pt->starting >> 6;
+	ret->c = pt->starting & 1024;
 	ret->h = pt->startinghead;
-	ret->s = pt->starting & 64;
+	ret->s = (pt->starting >> 6) & 64;
 	return ret;
 }
 uint8_t getFatType(uint8_t drive){
@@ -26,7 +26,7 @@ uint8_t getFatType(uint8_t drive){
 		unsigned int tsect = (bpr->tsectors == 0) ? bpr->largesectors : bpr->tsectors;	
 		unsigned int fat_size = (bpr->sectorsperfat == 0) ? ebr32->sectorsperfat : bpr->sectorsperfat;
 		unsigned int rds = ((bpr->ndent*32)+(bpr->bytes_per_sector-1))/bpr->bytes_per_sector;
-		unsigned int ds = tsect - (bpr->nrsect + (bpr->tblcount * fat_size)) + rds;
+		unsigned int ds = bpr->tsectors - (bpr->nrsect + (bpr->tblcount * fat_size) + rds);
 		unsigned int tc = ds/bpr->sectors_per_cluster;
 		if(tc < 4085)
 			return 0;

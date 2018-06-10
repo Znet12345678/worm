@@ -15,14 +15,14 @@ struct BPB{
 	uint16_t theads;
 	uint32_t lba_begin;
 	uint32_t largesectors;
-};
+}__attribute__((packed));
 struct PartTab{
 	uint8_t boot;
 	uint8_t startinghead;
-	uint16_t starting;//Sector = starting & 64 cylinder = starting >> 6
+	uint16_t starting;//Sector = (starting >> 6) & 64 | cylinder = starting & 1024
 	uint8_t sysid;
 	uint8_t endinghead;
-	uint16_t ending;//Sector = ending & 64 cylinder = ending >> 6
+	uint16_t ending;//Sector = (ending >> 6) & 64  | cylinder = ending & 1024;
 	uint32_t lba;
 	uint32_t tsectors;
 };
@@ -33,7 +33,7 @@ struct EBR_FAT16{
 	uint32_t serial;
 	uint8_t vlbl[11];
 	uint8_t sysident[8];
-};
+}__attribute__((packed));
 struct EBR_FAT32{
 	uint32_t sectorsperfat;
 	uint16_t flags;
@@ -47,7 +47,7 @@ struct EBR_FAT32{
 	uint32_t serial;
 	uint8_t vlbl[11];
 	uint8_t sysident[8];
-};
+}__attribute__((packed));
 struct dirent{
 	uint8_t name[11];
 	uint8_t attr;
@@ -76,4 +76,5 @@ struct lonkboi{
 #define TYPE_FAT16 1
 #define TYPE_FAT32 2
 #define TYPE_ExFat 4
+uint8_t getFatType(uint8_t drive);
 #endif

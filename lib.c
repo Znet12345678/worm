@@ -23,9 +23,9 @@ int intlen(int n){
 	}
 	return ret;
 }
-char *tostr(int n){
+char *tostr(unsigned int n){
 	char *str = malloc(80);
-	int indx = intlen(n)-1;
+	uint8_t indx = intlen(n)-1;
 	str[indx+1] = 0;
 	while(n > 0){
 		str[indx] = (n % 10) + '0';
