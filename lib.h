@@ -19,6 +19,7 @@ struct CHS{
 	uint8_t h;
 	uint8_t s;
 };
+void init_mem();
 void panic();
 void main();
 void _puts(const char *str);
@@ -26,5 +27,5 @@ unsigned long strlen(const char *str);
 uint8_t bios_read_chs(void *pntr,unsigned short c,unsigned short h,unsigned short s,unsigned short d);
 void *malloc(size_t size);
 void free(void *pntr);
-char *tostr(unsigned int n);
+void puti(unsigned int n);
 #endif

@@ -9,6 +9,7 @@ void puts(const char * str){
 	_puts(str);
 }
 void main(){
+	init_mem();
 	const char *pntr = "Welcome to worm, a real mode x86 bootloader\n";
 	_puts(pntr);
 	_puts("->Searching for usable disks...\n");

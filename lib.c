@@ -23,16 +23,23 @@ int intlen(int n){
 	}
 	return ret;
 }
-char *tostr(unsigned int n){
-	char *str = malloc(80);
-	uint8_t indx = intlen(n)-1;
-	str[indx+1] = 0;
-	while(n > 0){
-		str[indx] = (n % 10) + '0';
+void bzero(void *pntr,uint64_t n){
+	for(unsigned long i = 0;i < n;i++)
+		*(uint8_t*)pntr = 0;
+}
+void puti(unsigned int n){
+	int8_t indx = intlen(n)-1;
+	uint8_t *pntr = malloc(11);
+	bzero(pntr,11);
+	while(indx >= 0){
+		pntr[indx] = (uint8_t)(n % 10) + '0';
 		indx--;
 		n/=10;
 	}
-	return str;
+	_puts(pntr);
+}
+void init_mem(){
+	
 }
 void *malloc(size_t n){
 	struct mem *m = (struct mem*)0xF000;

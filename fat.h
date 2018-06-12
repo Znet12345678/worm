@@ -19,10 +19,10 @@ struct BPB{
 struct PartTab{
 	uint8_t boot;
 	uint8_t startinghead;
-	uint16_t starting;//Sector = (starting >> 6) & 64 | cylinder = starting & 1024
+	uint16_t starting;//Sector = (starting >> 10) & 64 | cylinder = starting & 1024
 	uint8_t sysid;
 	uint8_t endinghead;
-	uint16_t ending;//Sector = (ending >> 6) & 64  | cylinder = ending & 1024;
+	uint16_t ending;//Sector = (ending >> 10) & 64  | cylinder = ending & 1024;
 	uint32_t lba;
 	uint32_t tsectors;
 };
