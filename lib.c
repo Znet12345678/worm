@@ -9,10 +9,10 @@ uint8_t bios_read_chs(void *pntr,unsigned short c,unsigned short h,unsigned shor
 	__asm__("mov %0,%%cl" : :"m"(s));
 	__asm__("mov %0,%%dh" : :"m"(h));
 	__asm__("mov %0,%%dl" : :"m"(d));
-	__asm__("mov %0,%%bx" : "=m"(pntr));
+	__asm__("mov %0,%%bx" : : "m"(pntr));
 	__asm__("int $0x13");
 	int ret;
-	__asm__("mov %%ah,%0" : "=m"(ret));
+	__asm__("mov %%ah,%0" :  : "m"(ret));
 	return ret;
 }
 int intlen(int n){
@@ -28,9 +28,13 @@ void bzero(void *pntr,uint64_t n){
 		*(uint8_t*)pntr = 0;
 }
 void puti(unsigned int n){
+	if(n == 0){
+		_puts("0");
+		return;
+	}
 	int8_t indx = intlen(n)-1;
-	uint8_t *pntr = malloc(11);
-	bzero(pntr,11);
+	uint8_t *pntr = malloc(1024);
+	bzero(pntr,1024);
 	while(indx >= 0){
 		pntr[indx] = (uint8_t)(n % 10) + '0';
 		indx--;
@@ -41,14 +45,19 @@ void puti(unsigned int n){
 void init_mem(){
 	
 }
+void memcpy(void *dest,void *src,unsigned long n){
+	for(unsigned long i = 0; i < n;i++)
+		*(unsigned char*)(dest + i) = *(unsigned char*)(src + i);
+}
 void *malloc(size_t n){
-	struct mem *m = (struct mem*)0xF000;
+	struct mem *m = (struct mem*)0xA000;
 	while(m->alloc){
-
 		m+=m->size;
 	}
 	int allocated = 0;
 	while(allocated < n){
+		if(!m->alloc)
+			m+=sizeof(*m);
 		int sv = m->size;
 		if(m->size > n){
 			m->alloc = 1;

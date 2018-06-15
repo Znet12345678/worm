@@ -46,10 +46,11 @@ void main(){
 	if(!found){
 		panic();
 	}
+	int drive = 0;
 	puts("Looking for fat partitions\n");
 	for(int i = 0; i < 4;i++){
 		if(r[i] == 0){
-			uint8_t fattype = getFatType(r[i]);
+			uint8_t fattype = getFatType(drive);
 			switch(fattype){
 				case 0:
 					puts("Found fat 12\n");
@@ -67,9 +68,11 @@ void main(){
 					puts("None found on this partition\n");
 					break;
 				default:;
+					puts("Def\n");
 					break;
 			}	
-		}	
+		}
+		drive = (drive == 0) ? 1 : (drive == 1) ? 0x80 : 0x81; 
 	}
 	while(1);
 }
