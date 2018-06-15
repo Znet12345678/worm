@@ -1,18 +1,78 @@
 #include "lib.h"
+struct CHS *getdp(uint8_t drive){
+	struct CHS *ret = malloc(sizeof(*ret));
+	__asm__("mov $0x08,%ah");
+	__asm__("mov %0,%%dl" : :"m"(drive));
+	__asm__("int $0x13");
+	uint8_t head,cs,retc;
+	__asm__("mov %%ah,%0" : "=m"(retc));
+	if(retc == 0)
+		return 0;
+	__asm__("mov %%dh,%0" : "=m"(head));
+	__asm__("mov %%cx,%0" : "=m"(cs));
+	ret->h = head;
+	ret->s = cs & 64;
+	ret->c = (cs >> 6);
+
+       return ret;	
+}
+struct CHS *convCHS(struct CHS *drive,struct CHS *chs){
+	_puts("convCHS( ... )\n");
+	struct CHS *ret = malloc(sizeof(*ret));
+	ret->c = chs->c % drive->c;
+	ret->h = chs->h % drive->h;
+	uint16_t val;
+	val = chs->s;
+	while(val > drive->h){
+		puti(val);
+		ret->h++;
+		val--;
+	}
+	val = ret->h;
+	while(val > drive->c){
+		ret->c++;
+		puti(val);
+		val--;
+	}
+	val = drive->s;
+	while(val < drive->s){
+		puti(val);
+		ret->s--;
+		ret->h++;
+		val++;
+	}
+	val = drive->h;
+	while(val < drive->h){
+		ret->h--;
+		ret->c++;
+		val++;
+	}
+	return ret;
+}
 uint8_t bios_read_chs(void *pntr,unsigned short c,unsigned short h,unsigned short s,unsigned short d){
+	struct CHS *drive = getdp(d);
+	if(!drive)
+		return -1;
+	struct CHS *chs = malloc(sizeof(*chs));
+	chs->c = c;
+	chs->h = h;
+	chs->s = s;
+	chs = convCHS(drive,chs);
+	if(!chs)
+		return 0;
 	__asm__("mov %ds,%ax");
 	__asm__("mov %ax,%es");
 	__asm__("xor %ax,%ax");
 	__asm__("mov $0x02,%ah");
 	__asm__("mov $0x01,%al");
-	__asm__("mov %0,%%ch" : :"m"(c));
-	__asm__("mov %0,%%cl" : :"m"(s));
-	__asm__("mov %0,%%dh" : :"m"(h));
+	__asm__("mov %0,%%ch" : :"m"(chs->c));
+	__asm__("mov %0,%%cl" : :"m"(chs->s));
+	__asm__("mov %0,%%dh" : :"m"(chs->h));
 	__asm__("mov %0,%%dl" : :"m"(d));
-	__asm__("mov %0,%%bx" : : "m"(pntr));
+	__asm__("mov %0,%%bx" :  "=m"(pntr));
 	__asm__("int $0x13");
-	int ret;
-	__asm__("mov %%ah,%0" :  : "m"(ret));
+	uint8_t ret;
+	__asm__("mov %%ah,%0" :  "=m"(ret));
 	return ret;
 }
 int intlen(int n){

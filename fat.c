@@ -29,9 +29,7 @@ uint8_t getFatType(uint8_t drive){
 		if(drive == 0x81)
 			_puts("HDB...\n");
 		struct BPB *bpr = malloc(sizeof(*bpr));
-		uint8_t *mbr = malloc(1024);
-		bzero(mbr,1024);
-	
+		uint8_t *mbr = malloc(512);
 		uint8_t ret = bios_read_chs(mbr,chs->c,chs->h,chs->s,drive);
 		if(ret != 0){
 			_puts("Failed to read drive on sector ");
@@ -55,7 +53,7 @@ uint8_t getFatType(uint8_t drive){
 		unsigned int fat_size = (bpr->sectorsperfat == 0) ? ebr32->sectorsperfat : bpr->sectorsperfat;
 		unsigned short rds =  ((bpr->ndent*32)+(bpr->bytes_per_sector-1))/bpr->bytes_per_sector;
 		unsigned int ds = bpr->tsectors - (bpr->nrsect + (bpr->tblcount * fat_size) + rds);
-		unsigned int tc = ds/bpr->sectors_per_cluster;//		puti(tc);
+		unsigned int tc = ds/bpr->sectors_per_cluster;
 		_puts("oi\n");
 		if(tc < 4085)
 			return 0;

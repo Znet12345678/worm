@@ -16,9 +16,10 @@ struct mem{
 };
 struct CHS{
 	uint16_t c;
-	uint8_t h;
-	uint8_t s;
+	uint16_t h;
+	uint16_t s;
 };
+void _putc(char c);
 void memcpy(void *dest,void *src,unsigned long n);
 void init_mem();
 void panic();
