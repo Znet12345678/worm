@@ -4,7 +4,9 @@ void resetdisk(){
 	__asm__("int $0x13");
 }
 struct CHS *getdp(uint8_t drive){
+#ifdef DEBUG
 	_puts("getdp( ... )\n");
+#endif
 	resetdisk();
 	struct CHS *ret = malloc(sizeof(*ret));
 	__asm__("mov $0x08,%ah");
@@ -31,7 +33,9 @@ struct CHS *getdp(uint8_t drive){
 	return ret;	
 }
 struct CHS *convCHS(struct CHS *drive,struct CHS *chs){
+#ifdef DEBUG
 	_puts("convCHS( ... )\n");
+#endif
 	struct CHS *ret = malloc(sizeof(*ret));
 	ret->c = drive->c == 0? :chs->c % drive->c;
 	ret->h = drive->h == 0 ? : chs->h % drive->h;
@@ -49,7 +53,9 @@ struct CHS *convCHS(struct CHS *drive,struct CHS *chs){
 	return ret;
 }
 uint8_t bios_read_chs(void *pntr,unsigned short c,unsigned short h,unsigned short s,unsigned short d){
+#ifdef DEBUG
 	_puts("bios_read_chs( ... )\n");
+#endif
 	resetdisk();
 	struct CHS *drive = getdp(d);
 	if(!drive)
