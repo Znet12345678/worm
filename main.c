@@ -74,5 +74,6 @@ void main(){
 		}
 		drive = (drive == 0) ? 1 : (drive == 1) ? 0x80 : 0x81; 
 	}
+	puts("Hng()");
 	while(1);
 }

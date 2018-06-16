@@ -1,55 +1,56 @@
 #include "lib.h"
+void resetdisk(){
+	__asm__("mov $0,%ah");
+	__asm__("int $0x13");
+}
 struct CHS *getdp(uint8_t drive){
+	_puts("getdp( ... )\n");
+	resetdisk();
 	struct CHS *ret = malloc(sizeof(*ret));
 	__asm__("mov $0x08,%ah");
 	__asm__("mov %0,%%dl" : :"m"(drive));
 	__asm__("int $0x13");
-	uint8_t head,cs,retc;
-	__asm__("mov %%ah,%0" : "=m"(retc));
-	if(retc == 0)
-		return 0;
+	uint8_t head,c,s,retc;
 	__asm__("mov %%dh,%0" : "=m"(head));
-	__asm__("mov %%cx,%0" : "=m"(cs));
+	__asm__("mov %%ch,%0" : "=m"(c));
+	__asm__("mov %%cl,%0" : "=m"(s));
 	ret->h = head;
-	ret->s = cs & 64;
-	ret->c = (cs >> 6);
-
-       return ret;	
+	ret->s = s;
+	ret->c = c;
+	resetdisk();
+	__asm__("mov $2,%ah");
+	__asm__("mov $1,%al");
+	__asm__("mov %0,%%dl" : :"m"(drive));
+	__asm__("mov $0,%dh");
+	__asm__("mov $1,%cx");
+	__asm__("int $0x13");
+	__asm__("mov %%ah,%0" : "=m"(retc));
+	resetdisk();
+	if(retc != 0)
+		return 0;
+	return ret;	
 }
 struct CHS *convCHS(struct CHS *drive,struct CHS *chs){
 	_puts("convCHS( ... )\n");
 	struct CHS *ret = malloc(sizeof(*ret));
-	ret->c = chs->c % drive->c;
-	ret->h = chs->h % drive->h;
+	ret->c = drive->c == 0? :chs->c % drive->c;
+	ret->h = drive->h == 0 ? : chs->h % drive->h;
 	uint16_t val;
-	val = chs->s;
-	while(val > drive->h){
-		puti(val);
-		ret->h++;
-		val--;
-	}
-	val = ret->h;
+	val = chs->c;
 	while(val > drive->c){
-		ret->c++;
-		puti(val);
+		ret->h++;
 		val--;
 	}
-	val = drive->s;
-	while(val < drive->s){
-		puti(val);
-		ret->s--;
-		ret->h++;
-		val++;
-	}
-	val = drive->h;
-	while(val < drive->h){
-		ret->h--;
-		ret->c++;
-		val++;
+	val = chs->h;
+	while(val > drive->h){
+		ret->s++;
+		val--;
 	}
 	return ret;
 }
 uint8_t bios_read_chs(void *pntr,unsigned short c,unsigned short h,unsigned short s,unsigned short d){
+	_puts("bios_read_chs( ... )\n");
+	resetdisk();
 	struct CHS *drive = getdp(d);
 	if(!drive)
 		return -1;
@@ -71,9 +72,15 @@ uint8_t bios_read_chs(void *pntr,unsigned short c,unsigned short h,unsigned shor
 	__asm__("mov %0,%%dl" : :"m"(d));
 	__asm__("mov %0,%%bx" :  "=m"(pntr));
 	__asm__("int $0x13");
+	resetdisk();
 	uint8_t ret;
 	__asm__("mov %%ah,%0" :  "=m"(ret));
 	return ret;
+}
+void pdskerr(int err){
+	_puts("Disk error ");
+	puti(err);
+	_puts(" has occured\n");
 }
 int intlen(int n){
 	int ret = 0;
@@ -116,9 +123,10 @@ void *malloc(size_t n){
 	}
 	int allocated = 0;
 	while(allocated < n){
-		if(!m->alloc)
+		if(m->alloc){
 			m+=sizeof(*m);
-		int sv = m->size;
+			continue;
+		}int sv = m->size;
 		if(m->size > n){
 			m->alloc = 1;
 			m->size = n;

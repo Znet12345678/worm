@@ -15,6 +15,7 @@ struct CHS* getPartChs(uint8_t drive,uint8_t partnum){
 	return ret;
 }
 uint8_t getFatType(uint8_t drive){
+	_puts("getFatType( ... )\n");
 	for(int i = 0; i < 4;i++){
 		struct CHS *chs = getPartChs(drive,i);
 		if(!chs)
